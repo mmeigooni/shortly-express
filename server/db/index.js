@@ -2,10 +2,12 @@ const mysql = require('mysql');
 const createTables = require('./config');
 const Promise = require('bluebird');
 const database = 'shortly';
+var password = require('../sqlAuth.js');
+
 
 const connection = mysql.createConnection({
-  user: 'student',
-  password: 'student'
+  user: 'root',
+  password: password.SQLPASSWORD
 });
 
 const db = Promise.promisifyAll(connection, { multiArgs: true });

@@ -2,6 +2,7 @@ var expect = require('chai').expect;
 var mysql = require('mysql');
 var request = require('request');
 var httpMocks = require('node-mocks-http');
+var password = require('../sqlAuth.js');
 
 var app = require('../server/app.js');
 var schema = require('../server/db/config.js');
@@ -39,8 +40,8 @@ describe('', function() {
     /* TODO: Update user and password if different than on your local machine            */
     /*************************************************************************************/
     db = mysql.createConnection({
-      user: 'student',
-      password: 'student',
+      user: 'root',
+      password: password.SQLPASSWORD,
       database: 'shortly'
     });
 
