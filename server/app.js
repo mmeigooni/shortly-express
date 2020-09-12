@@ -83,7 +83,17 @@ app.get('/login',
 
 app.post('/login',
   (req, res) => {
-    // res.render('login');
+    // check to see if user exists
+    models.Users.get({username: req.body.username})
+      .then((user) => {
+        if (!user) {
+          throw new Error("Whoops!");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        res.render('login');
+      });
   });
 
 app.get('/signup',
@@ -93,21 +103,14 @@ app.get('/signup',
 
 app.post('/signup',
   (req, res) => {
-    // work on adding a user first
-    // console.log(`signup post req:`);
-    // console.log(req.body);
-    // console.log(req.body.username);
-    // console.log(req.body.password);
-    models.Users.get({username: req.body.username})
 
-    // models.Users.get on the {username: req.username}
+    models.Users.get({username: req.body.username})
       .then((user) => {
         if (user) {
           throw new Error("Whoops!");
           // Window.alert('Username already exists!');
           // $('#username').val('');
           // $('#password').val('');
-
         } else {
           models.Users.create(req.body)
             .then((result) => {
