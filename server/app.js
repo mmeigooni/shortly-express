@@ -3,9 +3,9 @@ const path = require('path');
 const utils = require('./lib/hashUtils');
 const partials = require('express-partials');
 const bodyParser = require('body-parser');
-const Auth = require('./middleware/auth');
+const Auth = require('./middleware/auth.js');
 const models = require('./models');
-
+const cookieParser = require('./middleware/cookieParser.js');
 const app = express();
 
 app.set('views', `${__dirname}/views`);
@@ -14,12 +14,23 @@ app.use(partials());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
+app.use(cookieParser);
+app.use(Auth.createSession);
+// app.use(cookieParser.parseCookies(req, res, () => {
+//   console.log('we did it!');
+// }));
+// app.use(() => {
+//   res.cookie('name', 'express').send('cookie set'); //Sets name = express
+// });
 
 
 
 app.get('/',
   (req, res) => {
+    // cookieParser.parseCookies()
+    // debugger;
     res.render('index');
+    // res.cookie('name', 'express').send('cookie set'); //Sets name = express
   });
 
 app.get('/create',
@@ -87,7 +98,22 @@ app.post('/login',
     models.Users.get({username: req.body.username})
       .then((user) => {
         if (!user) {
-          throw new Error("Whoops!");
+          res.redirect('/login');
+
+          // throw new Error("Whoops!");
+        } else {
+
+          let isAuthed = models.Users.compare(req.body.password, user.password, user.salt);
+          if (isAuthed) {
+            res.redirect('/');
+
+            // res.render('index');
+          } else {
+            console.log('Incorrect Password');
+            res.redirect('/login');
+
+            // res.render('login');
+          }
         }
       })
       .catch((err) => {
@@ -107,15 +133,12 @@ app.post('/signup',
     models.Users.get({username: req.body.username})
       .then((user) => {
         if (user) {
-          throw new Error("Whoops!");
-          // Window.alert('Username already exists!');
-          // $('#username').val('');
-          // $('#password').val('');
+          res.redirect('/signup');
         } else {
           models.Users.create(req.body)
             .then((result) => {
               console.log(result);
-              res.json(result);
+              res.redirect('/');
             })
             .catch((err) => {
               console.log(err);
@@ -124,7 +147,7 @@ app.post('/signup',
         }
       })
       .catch((err) => {
-        console.log('Username already exists');
+        console.log('DB lookup failed');
         res.render('signup');
       });
 

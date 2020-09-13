@@ -2,7 +2,7 @@ var expect = require('chai').expect;
 var mysql = require('mysql');
 var request = require('request');
 var httpMocks = require('node-mocks-http');
-var password = require('../sqlAuth.js');
+var password = require('../server/sqlAuth.js');
 
 var app = require('../server/app.js');
 var schema = require('../server/db/config.js');
@@ -278,7 +278,7 @@ describe('', function() {
     });
   });
 
-  xdescribe('Sessions Schema:', function() {
+  describe('Sessions Schema:', function() {
     it('contains a sessions table', function(done) {
       var queryString = 'SELECT * FROM sessions';
       db.query(queryString, function(err, results) {
@@ -326,7 +326,7 @@ describe('', function() {
     });
   });
 
-  xdescribe('Express Middleware', function() {
+  describe('Express Middleware', function() {
     var cookieParser = require('../server/middleware/cookieParser.js');
     var createSession = require('../server/middleware/auth.js').createSession;
 
@@ -378,6 +378,7 @@ describe('', function() {
         var response = httpMocks.createResponse();
 
         createSession(requestWithoutCookies, response, function() {
+          debugger;
           var session = requestWithoutCookies.session;
           expect(session).to.exist;
           expect(session).to.be.an('object');
